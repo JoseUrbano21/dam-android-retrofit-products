@@ -1,0 +1,26 @@
+*************** EXPLICACIÓN DE RetrofitClient ***************
+
+1. Metodo `getRetrofit()`
+   - Crea y configura una instancia de Retrofit.
+   - Usa .Builder() para devolver el constructor para configurarlo encadenando metodos.
+   - Usa .baseUrl() para definir la API base.
+   - Usa .addConverterFactory(GsonConverterFactory.create()) para convertir JSON en objetos Kotlin.
+     Se crea el objeto GsonConverterFactory y Retrofit lo usa para convertir el JSON.
+   - Usa .build() para construir y devolver la instancia de Retrofit lista para usar.
+
+   - Hacerlo seguido en el return es más eficiente. Equivale a:
+         val retrofit = Retrofit.Builder()
+         retrofit.baseUrl("https://pokeapi.co/api/v2/")
+         retrofit.addConverterFactory(GsonConverterFactory.create())
+         return retrofit
+     pero esto es menos eficiente porque creamos variables innecesarias.
+
+2. Singleton `RetrofitClient`: util para que sea más eficiente y no haga falta crear una instancia
+  de Retrofit cada vez que se llame al metodo
+   - Guarda una única instancia de Retrofit (`private val retrofit`), de tipo (: Retrofit), que
+     guarda el valor que obtenemos del metodo (= getRetrofit()).
+   - Contiene el metodo `getPokeApiService()`, para obtener una instancia de la interfaz que
+     define cómo se llama a la API.
+   - `retrofit.create(PokeApiService::class.java)` genera automáticamente una implementación de la
+     API. La PokeApiService se convierte en java para que la pueda usar Retrofit y se crea una
+     instancia para que pueda ser usada.

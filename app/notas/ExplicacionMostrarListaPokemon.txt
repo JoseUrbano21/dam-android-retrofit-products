@@ -1,0 +1,41 @@
+*************** EXPLICACIÓN DE MostrarListaPokemon() ***************
+
+Es una función @Composable, lo que significa que es parte de la UI. Recibe dos parámetros:
+- pokemonList: List<PokemonResult> → La lista de Pokémon que queremos mostrar.
+- onPokemonClick: (String) -> Unit → Una función que se ejecutará al hacer clic en un Pokémon.
+  (String) -> Unit significa:
+  - Recibe un String (la URL del Pokémon).
+  - No devuelve nada (Unit es como void en Java).
+  Dentro de .clickable {} llamamos a onPokemonClick(pokemon.url), lo que ejecutará la función pasada en MainActivity.
+
+  🔹 ¿Por qué no pasamos directamente la URL en clickable? Porque .clickable necesita ejecutar código, no solo pasar un valor.
+  Usar onPokemonClick nos permite decidir qué hacer con la URL en MainActivity.kt, sin modificar MostrarListaPokemon.
+
+📌 ¿CÓMO SE USA MostrarListaPokemon() EN MainActivity.kt?
+En setContent, llamamos a MostrarListaPokemon y definimos qué pasará al hacer clic en un Pokémon.
+
+setContent {
+    MyApplicationTheme {
+        MostrarListaPokemon(
+            pokemonList = pokemonList,
+            onPokemonClick = { url -> fetchPokemonDetalles(url) }
+        )
+    }
+}
+
+Explicación de { url -> fetchPokemonDetalles(url) }:
+- url → Es el valor que recibe la función (es la URL del Pokémon en la API).
+- fetchPokemonDetalles(url) → Se ejecuta con la URL del Pokémon clicado.
+
+💡 Esto significa que al hacer clic en un Pokémon:
+   - Se ejecuta onPokemonClick(pokemon.url).
+   - La URL se pasa al bloque { url -> fetchPokemonDetalles(url) }.
+   - Se ejecuta fetchPokemonDetalles(url), que hará la llamada a la API.
+
+📌 ¿POR QUÉ USAMOS onPokemonClick EN LUGAR DE PONER fetchPokemonDetalles() DIRECTAMENTE?
+   - Flexibilidad: MostrarListaPokemon no está "atado" a fetchPokemonDetalles(), sino que podemos
+     cambiar la acción al hacer clic sin modificar MostrarListaPokemon.
+   - Reutilización: Podemos usar MostrarListaPokemon en otra parte de la app para algo diferente
+     sin necesidad de duplicar código.
+   - Separación de responsabilidades: MostrarListaPokemon solo se encarga de mostrar la lista.
+     No debe decidir qué hacer al hacer clic.

@@ -1,0 +1,60 @@
+*************** EXPLICACIÓN DE fetchPokemonList() ***************
+
+1. CoroutineScope(Dispatchers.IO).launch {}
+
+   - CoroutineScope: significa "alcance de la corrutina". Se utiliza para definir y ejecutar el entorno
+     de ejecución del hilo (corrutina, código asíncrono).
+   - Dispatchers.IO: se pasa por parámetro al alcance de la corrutina. "Dispatcher" puede traducirse
+     como "controlador de envío", es el que define el alcance de la corrutina, el que envía la corrutina
+     a un entorno concreto, en este caso, el entorno IO (Input/Output), ya que las llamadas a la API
+     se gestionan como entradas/salidas (llamadas/respuestas).
+   - launch: ejecuta la corrutina sin bloquear el hilo principal de la app (asíncrono).
+
+2. val response = pokeApiService.getPokemon()
+
+   Al usar la variable "pokeApiService", definida al principio en MainActivity.kt, estamos usando la implementación
+   de la interface para llamar a la API ("getPokemon()"). Lo que nos devuelve la API es un objeto "Response",
+   que contiene:
+   - El estado de la respuesta (isSuccessful): si la llamada salió bien (200 OK).
+   - El cuerpo de la respuesta (body()): contiene el JSON convertido en PokemonListResponse.
+   - El código de error si falla (errorBody(), code()): en caso de fallo, podemos ver qué pasó.
+
+   Por tanto, hay que verificar el contenido de "response" con un "if" para ver si lo que contiene es
+   la lista de Pokémon ("isSuccesful") o, de lo contrario, si contiene un error.
+
+3. val resultado = response.body()?.results ?: emptyList()
+
+   Si "response" contiene la lista de pokémon, llamamos al cuerpo de la respuesta ("body()"), que
+   contiene la lista de pokémon en la variable "results", como se estableció en el mapeo "PokemonListResponse".
+   Solo se puede acceder al "body()" si "isSuccessful" es "True".
+
+   En caso de que no contenga nada ("body" sea nulo), añadimos "?" al "body()" y "?:" para que guarde
+   en la variable una lista vacía.
+
+4. private var pokemonList by mutableStateOf(emptyList<PokemonResult>()) y withContext(Dispatchers.Main)
+
+   Puesto que en "resultado" se guarda la lista obtenida de la API y la necesitamos usar fuera de la función,
+   declaramos una variable accesible en toda la clase Main que puede variar en función de lo que nos
+   dé la API ("mutableStateOf").
+
+   JetPack Compose solo puede actualizar la lista desde el hilo principal, por lo que para hacerlo primero tenemos
+   que cambiar el hilo de fondo ("CoroutineScope") al hilo principal ("withContext") y ahí meter en la
+   variable "pokemonList" la lista guardada en "resultado".
+
+   Traducción de "withContext(Dispatchers.Main) {}" en palabras:
+   - "Mientras estamos en este contexto (hilo de fondo con Dispatchers.IO), cambiemos temporalmente
+     al hilo principal (Dispatchers.Main) para ejecutar este bloque de código."
+
+5. Diferencias: "CoroutineScope(Dispatchers.IO).launch {}" VS "withContext(Dispatchers.Main) {}"
+
+   - "CoroutineScope(Dispatchers.IO).launch {}"
+     - ✅ Crea e inicia una nueva corrutina en un hilo de fondo.
+     - ✅ Cambia el hilo de ejecución a Dispatchers.IO (tareas pesadas, red, BD).
+     - ❌ No bloquea la corrutina actual, ejecuta en segundo plano.
+     - Se usa para llamadas a la API, operaciones largas.
+
+   - "withContext(Dispatchers.Main) {}"
+     - ❌ No crea ni inicia una nueva corrutina, solo cambia de hilo dentro de la corrutina actual.
+     - ✅ Cambia el hilo de ejecución a Dispatchers.Main (actualizar UI).
+     - ✅ Sí bloque la corrutina actual, espera a que termine antes de continuar.
+     - Se usa para actualizar UI tras recibir datos.
