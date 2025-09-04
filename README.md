@@ -18,6 +18,7 @@
 
 ## 🔌 API usada
 Endpoint de ejemplo: `https://peticiones.online/api/products`
+![peticoines.online](https://peticiones.online/api/products)
 
 ## 📸 Vista previa
 *(Pendiente de añadir captura/s)*
