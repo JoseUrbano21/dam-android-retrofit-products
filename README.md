@@ -20,4 +20,4 @@
 Endpoint de ejemplo: `https://peticiones.online/api/products`
 
 ## 📸 Vista previa
-<img src="screenshot_1.png" height="200"><img src="screenshot_1.png" height="200">
+<img src="screenshot_1.png" height="500"> <img src="screenshot_1.png" height="500">
